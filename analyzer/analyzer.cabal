@@ -1,0 +1,88 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.34.4.
+--
+-- see: https://github.com/sol/hpack
+
+name:           analyzer
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/vojsa5/analyzer#readme>
+homepage:       https://github.com/vojsa5/analyzer#readme
+bug-reports:    https://github.com/vojsa5/analyzer/issues
+author:         Vojtěch Rozhoň
+maintainer:     rozhovoj@cvut.cz
+copyright:      2022 Vojtěch Rozhoň
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/vojsa5/analyzer
+
+library
+  exposed-modules:
+      C.MyC
+      Data.LinesCnt
+      Data.Result
+      Java.Myjava
+      Lexer
+      Lib
+      Python.MyPython
+  other-modules:
+      Paths_analyzer
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , language-c
+    , language-java
+    , language-python ==0.5.*
+    , parsec ==3.1.*
+    , split
+  default-language: Haskell2010
+
+executable analyzer-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_analyzer
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      analyzer
+    , base >=4.7 && <5
+    , containers
+    , language-c
+    , language-java
+    , language-python ==0.5.*
+    , parsec ==3.1.*
+    , split
+  default-language: Haskell2010
+
+test-suite analyzer-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      C.Ctest
+      Java.Javatest
+      Python.Pythontest
+      Paths_analyzer
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      analyzer
+    , base >=4.7 && <5
+    , containers
+    , hspec
+    , language-c
+    , language-java
+    , language-python ==0.5.*
+    , parsec ==3.1.*
+    , split
+  default-language: Haskell2010

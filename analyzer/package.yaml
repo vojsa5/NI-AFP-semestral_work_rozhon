@@ -1,0 +1,55 @@
+name:                analyzer
+version:             0.1.0.0
+github:              "vojsa5/analyzer"
+license:             BSD3
+author:              "Vojtěch Rozhoň"
+maintainer:          "rozhovoj@cvut.cz"
+copyright:           "2022 Vojtěch Rozhoň"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/vojsa5/analyzer#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- split
+- containers
+- language-c
+- language-java
+- language-python == 0.5.*
+- parsec == 3.1.*
+
+library:
+  source-dirs: src
+
+executables:
+  analyzer-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies: 
+    - analyzer
+
+tests:
+  analyzer-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - hspec
+    - analyzer
