@@ -8,7 +8,7 @@ import Language.Python.Common.ParseError
 import Language.Python.Common.Token (Token)
 import Language.Python.Common.SrcLocation
 import qualified Data.Set 
-import Result
+import Data.Result
 import Debug.Trace
 
 
@@ -53,19 +53,20 @@ parseSuite suite = parseStatements suite
 
 parseStatement :: Statement Language.Python.Common.SrcLocation.SrcSpan -> PythonResult
 parseStatement (While cond suite suite2 _) = case (parseExpr cond, parseSuite suite, parseSuite suite2) of
-    (res1, res2, res3) -> combinePythonResults [res1, res2, res3]
+    (res1, res2, res3) -> combinePythonResults [res1, res2, res3, PythonResult newBranch Data.Set.empty]
 parseStatement (For targets generator suite suite2 _) = case (parseExprs targets, parseExpr generator, parseSuite suite, parseSuite suite2) of
     (res1, res2, res3, res4) -> combinePythonResults [res1, res2, res3, res4]
 parseStatement (AsyncFor stmt _) = parseStatement stmt
 parseStatement (Fun _ args _ body _) = case parseSuite body of
     (PythonResult res vars) -> case combinePythonResults[combinePythonResults (map parseParams args), PythonResult (res + newFunction) vars] of
         (PythonResult (Result classCnt branchesCnt _ fncCnt) vars) -> PythonResult 
-            (Result classCnt branchesCnt 
-                (if Data.Set.member "self" vars then (length vars) - 1 else length vars) fncCnt) Data.Set.empty
+            (Result classCnt branchesCnt (if Data.Set.member "self" vars 
+                then (length vars) - 1
+                else length vars) fncCnt) Data.Set.empty
 parseStatement (AsyncFun stmt _) = parseStatement stmt
 parseStatement (Class _ _ suite _) = case parseSuite suite of
     (PythonResult res vars) -> PythonResult (res + newClass) vars
-parseStatement (Conditional elifs suite _) = case ((parseSuite suite), parseElifs elifs) of
+parseStatement (Conditional elifs suite _) = case (parseSuite suite, parseElifs elifs) of
     ((PythonResult res vars), pythRes) -> combinePythonResults [PythonResult (res + Result 0 (length elifs) 0 0) vars, pythRes]
 parseStatement (Assign to expr _) = case (parseExprs to, parseExpr expr) of
     (res1, res2) -> combinePythonResults [res1, res2]
@@ -100,6 +101,7 @@ parseExprs (head:tail) = combinePythonResults [parseExprs tail, parseExpr head]
 
 parseExpr :: Expr Language.Python.Common.SrcLocation.SrcSpan -> PythonResult
 parseExpr (Var iden _) = parseIden iden 
+parseExpr (CondExpr _ _ _ _) = PythonResult newBranch Data.Set.empty
 parseExpr _ = emptyPythonResult
 
 

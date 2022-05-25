@@ -6,7 +6,7 @@ import Data.List
 import Data.List.Split
 import Lexer
 import Data.Char (isSpace)
-import LinesCnt
+import Data.LinesCnt
 
 
 

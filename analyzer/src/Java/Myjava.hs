@@ -5,8 +5,8 @@ module Java.Myjava
 import Language.Java.Parser
 import Language.Java.Syntax
 import Text.Parsec.Error (ParseError)
-import Result
-import LinesCnt
+import Data.Result
+import Data.LinesCnt
 import Debug.Trace
 
 run file = parseMyFile file

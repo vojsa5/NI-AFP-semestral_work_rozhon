@@ -7,7 +7,7 @@ import Language.C.System.GCC
 import Data.Maybe
 
 
-import Result
+import Data.Result
 
 
 

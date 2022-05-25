@@ -1,4 +1,4 @@
-module LinesCnt
+module Data.LinesCnt
     where
 
 

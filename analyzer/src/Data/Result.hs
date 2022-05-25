@@ -1,7 +1,7 @@
-module Result
+module Data.Result
     where
 
-import LinesCnt
+import Data.LinesCnt
 
 type ClassCnt = Int
 
