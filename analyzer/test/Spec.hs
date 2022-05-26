@@ -40,6 +40,7 @@ javaSrc7 = "int i = 5;/*\nint j = 6;*/"
 
 pythonSrc1 = "i = 5\nj = 6"
 pythonSrc2 = "i = 5\n\n\n\nj = 6"
+pythonSrc3 = "i = 5\n#j = 6"
 
 cFile = "/home/vojta/Documents/skola/AFP/NI-AFP-semestral_work_rozhon/analyzer/test/C/test.c"
 javaFile = "/home/vojta/Documents/skola/AFP/NI-AFP-semestral_work_rozhon/analyzer/test/Java/test.java"
@@ -63,6 +64,7 @@ spec = do
       it "creates python lines correctly" $ do
           createLines pythonSettings pythonSrc1 `shouldBe` ["i = 5", "j = 6"]
           createLines pythonSettings pythonSrc2 `shouldBe` ["i = 5", "", "", "", "j = 6"]
+          createLines pythonSettings pythonSrc3 `shouldBe` ["i = 5", "#j = 6"]
       it "counts lines in java correctly" $ do
           countLines javaSettings (createLines javaSettings javaSrc1) `shouldBe` LinesCnt 1 0 0
           countLines javaSettings (createLines javaSettings javaSrc2) `shouldBe` LinesCnt 1 0 1
@@ -74,6 +76,7 @@ spec = do
       it "counts lines in python correctly" $ do
           countLines pythonSettings (createLines pythonSettings pythonSrc1) `shouldBe` LinesCnt 2 0 0
           countLines pythonSettings (createLines pythonSettings pythonSrc2) `shouldBe` LinesCnt 2 3 0
+          countLines pythonSettings (createLines pythonSettings pythonSrc3) `shouldBe` LinesCnt 1 0 1
       it "counts real programs correctly" $ do
           sourceCodeC <- readFile cFile
           countLines cSettings (createLines cSettings sourceCodeC) `shouldBe` LinesCnt 22 9 1
