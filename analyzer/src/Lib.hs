@@ -4,59 +4,18 @@ module Lib
 import Debug.Trace
 import Data.List
 import Data.List.Split
-import Lexer
 import Data.Char (isSpace)
 import Data.LinesCnt
-import System.Environment 
-import C.MyC
-import Java.Myjava
-import Python.MyPython
-import Data.Result
-
-
-data CommentType = DoubleSlash | Hash
-                    deriving (Show, Read, Eq)
-
-
-data Settings = Settings {
-    commentType :: CommentType,
-    hasBlockComments :: Bool
-}
+import Data.Settings
 
 
 
-javaSettings = Settings DoubleSlash True
-cSettings = javaSettings
-pythonSettings = Settings Hash False
 
 
 
-run :: IO ()
-run = do
-    args <- getArgs
-    runLanguage (head args) (getLanguageName (head args))
-    putStrLn "Byeee!"
-
-
-
-runLanguage :: String -> String -> IO ()
-runLanguage fileName "java" = do
-    res <- Java.Myjava.run fileName
-    code <- readLanguageFile fileName
-    printResult res (countLines javaSettings (createLines code))
-runLanguage fileName "c" = do
-    res <- C.MyC.run fileName
-    code <- readLanguageFile fileName
-    printResult res (countLines cSettings (createLines code))
-runLanguage fileName "python" = do
-    res <- Python.MyPython.run fileName
-    code <- readLanguageFile fileName
-    printResult res (countLines pythonSettings (createLines code))
-runLanguage fileName "" = do
-    res <- C.MyC.run fileName
-    code <- readLanguageFile fileName
-    printResult res (countLines cSettings (createLines code))
-
+-- filename -> language name
+-- empty string means the language is not supported
+-- get name of the language of the code based on the suffix of the file.
 
 getLanguageName :: String -> String
 getLanguageName fileName = do
@@ -75,36 +34,54 @@ getLanguageName fileName = do
                             ""
 
 
-readLanguageFile :: String -> IO (String)
-readLanguageFile fileName = do
-    code <- readFile fileName
-    return code
-
-getKeywordsAndVariables :: String -> [String]
-
-getKeywordsAndVariables line = getKeywords line
+-- settings -> source code -> lines 
+-- splits source code by new line symbols and block comment symbols
+-- line where block comment starts 
 
 
-createLines :: String -> [String]
-createLines code = concat (map (\lst -> appendCommentSymbols "*/" lst) 
+createLines :: Settings -> String -> [String]
+createLines (Settings _ True) code = concat (map (\lst -> appendCommentSymbols "*/" lst) 
     (map (splitOn "*/") (concat (map (\lst -> appendCommentSymbols "/*" lst) 
         (map (splitOn "/*") (splitOn "\n" code))))))
+createLines (Settings _ False) code = splitOn "\n" code
 
+
+-- comment symbol -> lines -> lines with comment symbol possibly appended
+-- takes result of splitOn function called on a line with delimiter as a block comment symbol.
+-- The function wants to add back the deleted delimiter to the code
+-- If line was not splited (The list has one element), no element is added
+-- If opening comment symbol is at the end of a line, this line is not counted as a comment line
+-- If closing comment symbol is at the beginning of a line, this line is not counted as a comment line
 
 appendCommentSymbols :: String -> [String] -> [String]
 appendCommentSymbols _ [single] = [single]
-appendCommentSymbols delim lst = if delim == "/*"
-    then tail (appendCommentSymbols' delim lst)
-    else appendCommentSymbols' delim lst
+appendCommentSymbols delim lst = 
+    let 
+        appendedSymbols = appendCommentSymbols' delim lst
+    in
+        if delim == "/*" && head appendedSymbols == "" -- if block comment was at the beginning of the line, ensure that the line will not be counted as blank line
+            then
+                 tail appendedSymbols
+            else
+                 appendedSymbols
 
 
 appendCommentSymbols' :: String -> [String] -> [String]
 appendCommentSymbols' _ [] = []
-appendCommentSymbols' delim (head:second:tail) = [head] ++ [delim ++ second] ++ (appendCommentSymbols' delim tail)
+appendCommentSymbols' delim (head:second:tail) = [head] ++ (if delim == "/*" && second /= ""
+    then
+        [delim] ++ [second]
+    else
+        [delim ++ second]) ++ (appendCommentSymbols' delim tail)
 appendCommentSymbols' delim (head:tail) = if delim == "*/"
-    then []
-    else [head]
+    then 
+        []
+    else 
+        [head]
 
+
+-- settings -> line -> wheather there is a comment symbol in the line
+-- True if a line contains a comment symbol
 
 isCommentLine :: Settings -> String -> Bool
 isCommentLine (Settings Hash _) line = case filter (== '#') line of
@@ -113,34 +90,56 @@ isCommentLine (Settings Hash _) line = case filter (== '#') line of
 isCommentLine (Settings DoubleSlash _) line = isInfixOf "//" line
 
 
+-- settings -> line -> wheather the line starts with a comment symbol
+-- True if a line starts with a comment symbol
+
+
 startsWithCommentSymbol :: Settings -> String -> Bool
 startsWithCommentSymbol (Settings Hash _) (head:tail) = head == '#'
 startsWithCommentSymbol (Settings DoubleSlash _) (head:second:tail) = head == '/' && second == '/'
 startsWithCommentSymbol _ _ = False
 
-checkComment :: Settings -> String -> LinesCnt -> LinesCnt
-checkComment settings line (LinesCnt code blank comment) = 
-    if startsWithCommentSymbol settings line
-        then LinesCnt code blank comment
-        else if isCommentLine settings line
-            then checkIfCode settings line (LinesCnt code blank (comment + 1))
-            else checkIfCode settings line (LinesCnt code blank comment)
 
+-- settings -> line -> result counted so far -> allow increasing blank lines -> type of the line appended to the result
+-- Checks whether the line is code line or a black line
 
-checkIfCode :: Settings -> String -> LinesCnt -> LinesCnt
-checkIfCode settings line (LinesCnt code blank comment) = 
+checkIfCode :: Settings -> String -> LinesCnt -> Bool -> LinesCnt
+checkIfCode settings line (LinesCnt code blank comment) allowIncreasingBlankLines = 
     if all isSpace line 
-        then LinesCnt code (blank + 1) comment
-        else LinesCnt (code + 1) blank comment
+        then 
+            if allowIncreasingBlankLines
+                then
+                    LinesCnt code (blank + 1) comment
+                else
+                    LinesCnt code blank comment
+        else 
+            LinesCnt (code + 1) blank comment
 
+-- settings -> line -> result counted so far -> type of the line appended to the result
+-- Analyzes type of the line
 
 analyzeLine :: Settings -> String -> LinesCnt -> LinesCnt
-analyzeLine = checkComment
+analyzeLine settings line (LinesCnt code blank comment) = 
+    if startsWithCommentSymbol settings line -- if line starts with a comment, it is a comment line
+        then 
+            LinesCnt code blank (comment + 1)
+        else 
+            if isCommentLine settings line -- if lines has a comment inside but does not start with it, it is both a comment line and code/blank line
+                then 
+                    checkIfCode settings (getPreceedingCommentSymbol settings line) (LinesCnt code blank (comment + 1)) False
+                else
+                    checkIfCode settings line (LinesCnt code blank comment) True
 
 
-countLines :: Settings -> [String] -> LinesCnt
-countLines settings lines = countLines' settings False lines emptyLines
 
+getPreceedingCommentSymbol :: Settings -> String -> String
+getPreceedingCommentSymbol (Settings Hash _) line = head (splitOn "#" line)
+getPreceedingCommentSymbol (Settings DoubleSlash _) line = head (splitOn "//" line)
+getPreceedingCommentSymbol _ line = line
+
+
+-- isAlreadyInBlockComment -> line -> is line in block comment
+-- checks whether the line is in a block comment
 
 checkBlockComment :: Bool -> String -> Bool
 checkBlockComment False (head:second:tail) = head == '/' && second == '*'
@@ -148,18 +147,31 @@ checkBlockComment True (head:second:tail) = not (head == '*' && second == '/')
 checkBlockComment isInBlockComment _ = isInBlockComment
 
 
+-- settings -> lines -> counted lines
+-- Counts code, blank and comment lines
+
+countLines :: Settings -> [String] -> LinesCnt
+countLines settings lines = countLines' settings False lines emptyLines
+
 
 countLines' :: Settings -> Bool -> [String] -> LinesCnt -> LinesCnt
 countLines' settings@(Settings _ hasBlockComments) _ [] linesCnt = linesCnt
 countLines' settings@(Settings _ hasBlockComments) isInBlockComment (head:tail) linesCnt = 
-    if hasBlockComments && checkBlockComment isInBlockComment head
-        then
-            countLines' settings True tail (linesCnt + newCommentLine)
+    let 
+        blockCommentDetected = checkBlockComment isInBlockComment head
+    in
+        if hasBlockComments
+            then
+                if isInBlockComment && blockCommentDetected -- lines inside block comment
+                    then
+                        countLines' settings blockCommentDetected tail (linesCnt + newCommentLine)
+                    else
+                        if isInBlockComment || blockCommentDetected -- do not count beginning and end of a block comment as a line
+                            then
+                                countLines' settings blockCommentDetected tail linesCnt
+                            else
+                                countLines' settings False tail (analyzeLine settings head linesCnt) -- code lines
         else
-            if hasBlockComments && isInBlockComment
-                then
-                    countLines' settings False tail linesCnt
-                else
-                    countLines' settings False tail (analyzeLine settings head linesCnt)
+            countLines' settings False tail (analyzeLine settings head linesCnt) -- code lines
 
 

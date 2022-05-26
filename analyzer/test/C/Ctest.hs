@@ -6,6 +6,7 @@ module C.Ctest where
 
 import Test.Hspec
 import Data.Result
+import Data.Settings
 import Lib
 import C.MyC
 import Language.C
@@ -28,12 +29,17 @@ spec = do
   describe "getStatement" $ do
       it "solves C correctly" $ do
           ctu <- C.MyC.parseMyFile cFile
-          C.MyC.parse ctu cFile `shouldBe` (Result 1 0 9 2)
+          res <- C.MyC.parse cFile ctu
+          res `shouldBe` (Result 1 0 9 2)
           ctu2 <- C.MyC.parseMyFile cFile2
-          C.MyC.parse ctu2 cFile2 `shouldBe` (Result 10 0 34 1)
+          res2 <- C.MyC.parse cFile2 ctu2
+          res2 `shouldBe` (Result 10 0 34 1)
           ctu3 <- C.MyC.parseMyFile cFile3
-          C.MyC.parse ctu3 cFile3 `shouldBe` (Result 0 2 1 1)
+          res3 <- C.MyC.parse cFile3 ctu3
+          res3 `shouldBe` (Result 0 2 1 1)
           ctu4 <- C.MyC.parseMyFile cFile4
-          C.MyC.parse ctu4 cFile4 `shouldBe` (Result 1 0 4 1)
+          res4 <- C.MyC.parse cFile4 ctu4
+          res4 `shouldBe` (Result 1 0 4 1)
           ctu5 <- C.MyC.parseMyFile cFile5
-          C.MyC.parse ctu5 cFile5 `shouldBe` (Result 0 5 3 1)
+          res5 <- C.MyC.parse cFile5 ctu5
+          res5 `shouldBe` (Result 0 5 3 1)

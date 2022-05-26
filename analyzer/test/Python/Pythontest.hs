@@ -6,8 +6,10 @@ module Python.Pythontest where
 
 import Test.Hspec
 import Data.Result
+import Data.Settings
 import Lib
 import Python.MyPython
+
 
 main :: IO ()
 main = hspec spec

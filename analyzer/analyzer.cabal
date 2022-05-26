@@ -28,8 +28,8 @@ library
       C.MyC
       Data.LinesCnt
       Data.Result
+      Data.Settings
       Java.Myjava
-      Lexer
       Lib
       Python.MyPython
   other-modules:

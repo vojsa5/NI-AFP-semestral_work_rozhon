@@ -12,15 +12,13 @@ import Data.Result
 import Debug.Trace
 
 
+-- Python AST does not include declarations of variables, so we have look at all varibles defined in a function or on top level and sum them
+-- Set of variables is being passed together with the final result
+
 data PythonResult = PythonResult {
     result :: Result
     , vars :: Data.Set.Set String
 } deriving (Eq, Show, Read)
-
-
-run fileName = parseMyFile fileName
-
-
 
 
 combinePythonResults :: [PythonResult] -> PythonResult
@@ -34,9 +32,25 @@ emptyPythonResult :: PythonResult
 emptyPythonResult = PythonResult emptyResult Data.Set.empty
 
 
+-- source code -> result
+-- run python parser
+
+
+run :: String -> IO (Result)
+run input_file = do
+    source <- (readFile input_file)
+    return (parseSourceCode source)
+
+
+-- source code -> result
+-- parse the source code
+
+
 parseSourceCode :: String -> Result
 parseSourceCode source = parse (parseModule source "")
 
+
+-- parse the module
 
 parse :: Either ParseError (ModuleSpan, [Token]) -> Result
 parse (Right ((Module span), tokens)) = case parseSuite span of
@@ -45,11 +59,13 @@ parse (Right ((Module span), tokens)) = case parseSuite span of
 parse _ = emptyResult
 
 
+-- parse suite
 
 parseSuite :: Suite Language.Python.Common.SrcLocation.SrcSpan -> PythonResult
 parseSuite suite = parseStatements suite
 
 
+-- parse statement
 
 parseStatement :: Statement Language.Python.Common.SrcLocation.SrcSpan -> PythonResult
 parseStatement (While cond suite suite2 _) = case (parseExpr cond, parseSuite suite, parseSuite suite2) of
@@ -60,7 +76,7 @@ parseStatement (AsyncFor stmt _) = parseStatement stmt
 parseStatement (Fun _ args _ body _) = case parseSuite body of
     (PythonResult res vars) -> case combinePythonResults[combinePythonResults (map parseParams args), PythonResult (res + newFunction) vars] of
         (PythonResult (Result classCnt branchesCnt _ fncCnt) vars) -> PythonResult 
-            (Result classCnt branchesCnt (if Data.Set.member "self" vars 
+            (Result classCnt branchesCnt (if Data.Set.member "self" vars --do not count self as a varaible
                 then (length vars) - 1
                 else length vars) fncCnt) Data.Set.empty
 parseStatement (AsyncFun stmt _) = parseStatement stmt
@@ -77,12 +93,15 @@ parseStatement (AnnotatedAssign to expr _ _) = case (parseExpr to, parseExpr exp
 parseStatement _ = emptyPythonResult
 
 
+-- parse elifs statements
+
+
 parseElifs :: [(Expr Language.Python.Common.SrcLocation.SrcSpan, Suite Language.Python.Common.SrcLocation.SrcSpan)] -> PythonResult
 parseElifs [] = emptyPythonResult
 parseElifs ((expr, suite):tail) = combinePythonResults [parseExpr expr, parseSuite suite, parseElifs tail]
 
 
-
+-- parse params
 
 parseParams :: Parameter Language.Python.Common.SrcLocation.SrcSpan -> PythonResult
 parseParams (Param (Ident iden _) _ _ _) = PythonResult emptyResult (Data.Set.fromList [iden])
@@ -90,14 +109,21 @@ parseParams (VarArgsPos (Ident iden _) _ _) = PythonResult emptyResult (Data.Set
 parseParams (VarArgsKeyword (Ident iden _) _ _) = PythonResult emptyResult (Data.Set.fromList [iden])
 
 
+-- parse statements
+
 parseStatements :: [Statement Language.Python.Common.SrcLocation.SrcSpan] -> PythonResult
 parseStatements [] = emptyPythonResult
 parseStatements (head:tail) = combinePythonResults [parseStatements tail, parseStatement head] 
 
 
+-- parse expressions
+
 parseExprs :: [Expr Language.Python.Common.SrcLocation.SrcSpan] -> PythonResult
 parseExprs [] = emptyPythonResult
 parseExprs (head:tail) = combinePythonResults [parseExprs tail, parseExpr head] 
+
+
+-- parse an expression
 
 parseExpr :: Expr Language.Python.Common.SrcLocation.SrcSpan -> PythonResult
 parseExpr (Var iden _) = parseIden iden 
@@ -105,13 +131,8 @@ parseExpr (CondExpr _ _ _ _) = PythonResult newBranch Data.Set.empty
 parseExpr _ = emptyPythonResult
 
 
+-- parse an identifier
 
 parseIden :: Ident Language.Python.Common.SrcLocation.SrcSpan -> PythonResult
 parseIden (Ident iden _) = PythonResult emptyResult (Data.Set.fromList [iden])
 parseIden _ = emptyPythonResult
-
-
-parseMyFile :: String -> IO (Result)
-parseMyFile input_file = do
-    source <- (readFile input_file)
-    return (parseSourceCode source)

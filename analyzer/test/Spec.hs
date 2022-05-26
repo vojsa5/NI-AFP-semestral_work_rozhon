@@ -1,6 +1,7 @@
 import Test.Hspec
 import Data.Result
 import Data.LinesCnt
+import Data.Settings
 import Lib
 import qualified C.Ctest
 import qualified Java.Javatest
@@ -35,13 +36,15 @@ javaSrc5 = "if(x==y){\n" ++
                 "return 6;\n" ++
             "}*/"
 javaSrc6 = "/**/"
-
-javaSettings = Settings DoubleSlash True
-pythonSettings = Settings Hash False
-
+javaSrc7 = "int i = 5;/*\nint j = 6;*/"
 
 pythonSrc1 = "i = 5\nj = 6"
 pythonSrc2 = "i = 5\n\n\n\nj = 6"
+
+cFile = "/home/vojta/Documents/skola/AFP/NI-AFP-semestral_work_rozhon/analyzer/test/C/test.c"
+javaFile = "/home/vojta/Documents/skola/AFP/NI-AFP-semestral_work_rozhon/analyzer/test/Java/test.java"
+pythonFile = "/home/vojta/Documents/skola/AFP/NI-AFP-semestral_work_rozhon/analyzer/test/Python/test.py"
+
 
 spec :: Spec
 spec = do
@@ -49,23 +52,32 @@ spec = do
   describe "Java" Java.Javatest.spec
   describe "Python" Python.Pythontest.spec
   describe "getStatement" $ do
-      it "solves java correctly" $ do
-          createLines javaSrc1 `shouldBe` ["int i = 5;int j = 6;"]
-          createLines javaSrc2 `shouldBe` ["int i = 5;//int j = 6;"]
-          createLines javaSrc3 `shouldBe` ["class Foo{", "int i = 5;", "int j = 6;}"]
-          createLines javaSrc4 `shouldBe` ["if(x==y){", "return 5;", "}", "else{", "return 6;", "}"]
-          createLines javaSrc5 `shouldBe` ["if(x==y){", "return 5;", "}", "", "", "", "/*else{", "return 6;", "}", "*/"]
-          createLines javaSrc6 `shouldBe` ["/*", "*/"]
-      it "solves python correctly" $ do
-          createLines pythonSrc1 `shouldBe` ["i = 5", "j = 6"]
-          createLines pythonSrc2 `shouldBe` ["i = 5", "", "", "", "j = 6"]
-      it "count lines java" $ do
-          countLines javaSettings (createLines javaSrc1) `shouldBe` LinesCnt 1 0 0
-          countLines javaSettings (createLines javaSrc2) `shouldBe` LinesCnt 1 0 1
-          countLines javaSettings (createLines javaSrc3) `shouldBe` LinesCnt 3 0 0
-          countLines javaSettings (createLines javaSrc4) `shouldBe` LinesCnt 6 0 0
-          countLines javaSettings (createLines javaSrc5) `shouldBe` LinesCnt 3 3 3
-          countLines javaSettings (createLines javaSrc6) `shouldBe` LinesCnt 0 0 1
-      it "count lines python" $ do
-          countLines pythonSettings (createLines pythonSrc1) `shouldBe` LinesCnt 2 0 0
-          countLines pythonSettings (createLines pythonSrc2) `shouldBe` LinesCnt 2 3 0
+      it "creates java lines correctly" $ do
+          createLines javaSettings javaSrc1 `shouldBe` ["int i = 5;int j = 6;"]
+          createLines javaSettings javaSrc2 `shouldBe` ["int i = 5;//int j = 6;"]
+          createLines javaSettings javaSrc3 `shouldBe` ["class Foo{", "int i = 5;", "int j = 6;}"]
+          createLines javaSettings javaSrc4 `shouldBe` ["if(x==y){", "return 5;", "}", "else{", "return 6;", "}"]
+          createLines javaSettings javaSrc5 `shouldBe` ["if(x==y){", "return 5;", "}", "", "", "", "/*", "else{", "return 6;", "}", "*/"]
+          createLines javaSettings javaSrc6 `shouldBe` ["/*", "", "*/"]
+          createLines javaSettings javaSrc7 `shouldBe` ["int i = 5;", "/*", "int j = 6;", "*/"]
+      it "creates python lines correctly" $ do
+          createLines pythonSettings pythonSrc1 `shouldBe` ["i = 5", "j = 6"]
+          createLines pythonSettings pythonSrc2 `shouldBe` ["i = 5", "", "", "", "j = 6"]
+      it "counts lines in java correctly" $ do
+          countLines javaSettings (createLines javaSettings javaSrc1) `shouldBe` LinesCnt 1 0 0
+          countLines javaSettings (createLines javaSettings javaSrc2) `shouldBe` LinesCnt 1 0 1
+          countLines javaSettings (createLines javaSettings javaSrc3) `shouldBe` LinesCnt 3 0 0
+          countLines javaSettings (createLines javaSettings javaSrc4) `shouldBe` LinesCnt 6 0 0
+          countLines javaSettings (createLines javaSettings javaSrc5) `shouldBe` LinesCnt 3 3 3
+          countLines javaSettings (createLines javaSettings javaSrc6) `shouldBe` LinesCnt 0 0 1
+          countLines javaSettings (createLines javaSettings javaSrc7) `shouldBe` LinesCnt 1 0 1
+      it "counts lines in python correctly" $ do
+          countLines pythonSettings (createLines pythonSettings pythonSrc1) `shouldBe` LinesCnt 2 0 0
+          countLines pythonSettings (createLines pythonSettings pythonSrc2) `shouldBe` LinesCnt 2 3 0
+      it "counts real programs correctly" $ do
+          sourceCodeC <- readFile cFile
+          countLines cSettings (createLines cSettings sourceCodeC) `shouldBe` LinesCnt 22 9 1
+          sourceCodeJava <- readFile javaFile
+          countLines cSettings (createLines javaSettings sourceCodeJava) `shouldBe` LinesCnt 13 1 2
+          sourceCodePython <- readFile pythonFile
+          countLines pythonSettings (createLines pythonSettings sourceCodePython) `shouldBe` LinesCnt 14 6 2
