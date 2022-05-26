@@ -6,8 +6,7 @@ import Lib
 import qualified C.Ctest
 import qualified Java.Javatest
 import qualified Python.Pythontest
-
-
+import System.Directory
 
 
 main :: IO ()
@@ -42,10 +41,6 @@ pythonSrc1 = "i = 5\nj = 6"
 pythonSrc2 = "i = 5\n\n\n\nj = 6"
 pythonSrc3 = "i = 5\n#j = 6"
 
-cFile = "/home/vojta/Documents/skola/AFP/NI-AFP-semestral_work_rozhon/analyzer/test/C/test.c"
-javaFile = "/home/vojta/Documents/skola/AFP/NI-AFP-semestral_work_rozhon/analyzer/test/Java/test.java"
-pythonFile = "/home/vojta/Documents/skola/AFP/NI-AFP-semestral_work_rozhon/analyzer/test/Python/test.py"
-
 
 spec :: Spec
 spec = do
@@ -78,9 +73,10 @@ spec = do
           countLines pythonSettings (createLines pythonSettings pythonSrc2) `shouldBe` LinesCnt 2 3 0
           countLines pythonSettings (createLines pythonSettings pythonSrc3) `shouldBe` LinesCnt 1 0 1
       it "counts real programs correctly" $ do
-          sourceCodeC <- readFile cFile
+          currDir <- getCurrentDirectory
+          sourceCodeC <- readFile (currDir ++ "/test/C/test.c")
           countLines cSettings (createLines cSettings sourceCodeC) `shouldBe` LinesCnt 22 9 1
-          sourceCodeJava <- readFile javaFile
+          sourceCodeJava <- readFile (currDir ++ "/test/Java/test.java")
           countLines cSettings (createLines javaSettings sourceCodeJava) `shouldBe` LinesCnt 13 1 2
-          sourceCodePython <- readFile pythonFile
+          sourceCodePython <- readFile (currDir ++ "/test/Python/test.py")
           countLines pythonSettings (createLines pythonSettings sourceCodePython) `shouldBe` LinesCnt 14 6 2
