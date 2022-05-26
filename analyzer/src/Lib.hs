@@ -18,10 +18,6 @@ data CommentType = DoubleSlash | Hash
                     deriving (Show, Read, Eq)
 
 
-data Keywords = Class | If | Else
-                    deriving (Show, Read, Eq)
-
-
 data Settings = Settings {
     commentType :: CommentType,
     hasBlockComments :: Bool
