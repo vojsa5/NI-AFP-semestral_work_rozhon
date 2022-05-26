@@ -7,14 +7,11 @@ import Data.List.Split
 import Lexer
 import Data.Char (isSpace)
 import Data.LinesCnt
-
-
-
-
-run :: IO ()
-run = do
-    putStrLn "Byeee!"
-
+import System.Environment 
+import C.MyC
+import Java.Myjava
+import Python.MyPython
+import Data.Result
 
 
 data CommentType = DoubleSlash | Hash
@@ -32,9 +29,64 @@ data Settings = Settings {
 
 
 
-getKeywordsAndVariables :: String -> [String]
-getKeywordsAndVariables line = getKeywords line
+javaSettings = Settings DoubleSlash True
+cSettings = javaSettings
+pythonSettings = Settings Hash False
 
+
+
+run :: IO ()
+run = do
+    args <- getArgs
+    runLanguage (head args) (getLanguageName (head args))
+    putStrLn "Byeee!"
+
+
+
+runLanguage :: String -> String -> IO ()
+runLanguage fileName "java" = do
+    res <- Java.Myjava.run fileName
+    code <- readLanguageFile fileName
+    printResult res (countLines javaSettings (createLines code))
+runLanguage fileName "c" = do
+    res <- C.MyC.run fileName
+    code <- readLanguageFile fileName
+    printResult res (countLines cSettings (createLines code))
+runLanguage fileName "python" = do
+    res <- Python.MyPython.run fileName
+    code <- readLanguageFile fileName
+    printResult res (countLines pythonSettings (createLines code))
+runLanguage fileName "" = do
+    res <- C.MyC.run fileName
+    code <- readLanguageFile fileName
+    printResult res (countLines cSettings (createLines code))
+
+
+getLanguageName :: String -> String
+getLanguageName fileName = do
+    if isSuffixOf ".java" fileName
+        then 
+            "java"
+        else
+            if isSuffixOf ".c" fileName
+                then 
+                    "c"
+                else
+                    if isSuffixOf ".py" fileName
+                        then 
+                            "python"
+                        else
+                            ""
+
+
+readLanguageFile :: String -> IO (String)
+readLanguageFile fileName = do
+    code <- readFile fileName
+    return code
+
+getKeywordsAndVariables :: String -> [String]
+
+getKeywordsAndVariables line = getKeywords line
 
 
 createLines :: String -> [String]

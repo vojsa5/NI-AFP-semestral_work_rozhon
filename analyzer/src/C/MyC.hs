@@ -182,7 +182,6 @@ parseBlockItems (CBlockDecl decl) = parseDeclaration decl
 parseBlockItems (CNestedFunDef fce) = parseFunction fce
 
 
-printMyAST :: String -> CTranslUnit -> IO ()
+printMyAST :: String -> CTranslUnit -> IO (Result)
 printMyAST file ctu = do
-    print ctu
-    print (parse ctu file)
+    return (parse ctu file)

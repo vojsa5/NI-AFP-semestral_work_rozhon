@@ -55,7 +55,7 @@ newClass = (Result 1 0 0 0)
 
 printResult :: Result -> LinesCnt -> IO ()
 printResult (Result classCnt branchesCnt varsCnt functionsCnt) (LinesCnt code blank comment) = do
-    putStrLn ("Code lines: " ++ show code ++ "\n")
+    putStrLn ("\nCode lines: " ++ show code ++ "\n")
     putStrLn ("Blank lines: " ++ show blank ++ "\n")
     putStrLn ("Comment lines: " ++ show comment ++ "\n")
     putStrLn ("Number of classes: " ++ show classCnt ++ "\n")

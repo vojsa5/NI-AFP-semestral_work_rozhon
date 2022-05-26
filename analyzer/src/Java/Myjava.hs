@@ -104,7 +104,7 @@ parseVar _ = newVar
 
 
 
-parseMyFile :: String -> IO ()
+parseMyFile :: String -> IO (Result)
 parseMyFile input_file = do
     source <- (readFile input_file)
-    printResult (parseSourceCode source) emptyLines
+    return (parseSourceCode source)

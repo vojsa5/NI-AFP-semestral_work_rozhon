@@ -18,7 +18,7 @@ data PythonResult = PythonResult {
 } deriving (Eq, Show, Read)
 
 
-run = parseMyFile "/home/vojta/Documents/skola/AFP/NI-AFP-semestral_work_rozhon/analyzer/src/test.py"
+run fileName = parseMyFile fileName
 
 
 
@@ -111,7 +111,7 @@ parseIden (Ident iden _) = PythonResult emptyResult (Data.Set.fromList [iden])
 parseIden _ = emptyPythonResult
 
 
-parseMyFile :: String -> IO ()
+parseMyFile :: String -> IO (Result)
 parseMyFile input_file = do
     source <- (readFile input_file)
-    print (parseSourceCode source)
+    return (parseSourceCode source)
