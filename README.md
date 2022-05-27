@@ -15,3 +15,10 @@ Spočítá počet deklarovaných proměných.
 Budou podporovány alespoň 3 jazyky.
 
 Důraz by měl být kladen na jednoduché přidání podpory pro nový jazyk.
+
+
+Run
+```
+stack run "path to a source code file"
+```
+to run the app
