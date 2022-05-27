@@ -1,3 +1,13 @@
+{-|
+Module      : Settings
+Description : Settings of a language for the lines counter
+Copyright   : (c) Vojtech Rozhon, 2022
+License     : MIT
+Stability   : experimental
+-}
+
+
+
 module Data.Settings
     where
 

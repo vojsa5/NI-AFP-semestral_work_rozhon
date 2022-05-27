@@ -1,8 +1,8 @@
 import Test.Hspec
-import Data.Result
+import Data.ParserResult
 import Data.LinesCnt
 import Data.Settings
-import Lib
+import LineCounter
 import qualified C.Ctest
 import qualified Java.Javatest
 import qualified Python.Pythontest

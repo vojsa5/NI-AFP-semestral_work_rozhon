@@ -1,125 +1,134 @@
-module Java.Myjava
+{-|
+Module      : Java Parser
+Description : Counts classes, functions and methods, variables and branch statements in a java source code
+Copyright   : (c) Vojtech Rozhon, 2022
+License     : MIT
+Stability   : experimental
+-}
+
+
+module Java.JavaParser
     where
 
 
 import Language.Java.Parser
 import Language.Java.Syntax
 import Text.Parsec.Error (ParseError)
-import Data.Result
+import Data.ParserResult
 import Data.LinesCnt
 import Debug.Trace
 
 
+
+-- | Runs the java parser
 -- filename -> result (occurances of classes, branches, variables and methods)
--- run the java parser
 
-
-run :: String -> IO (Result)
+run :: String -> IO (ParserResult)
 run input_file = do
     sourceCode <- readFile input_file
     return (parse sourceCode)
 
 
+-- | Parses the source code
 -- source code -> result
--- parse the source code
 
-parse :: String -> Result
+parse :: String -> ParserResult
 parse source = parse' (parser compilationUnit source)
 
 
-parse' :: Either ParseError CompilationUnit -> Result
+parse' :: Either ParseError CompilationUnit -> ParserResult
 parse' (Right (CompilationUnit _ _ classes)) = foldl (+) 0 (map (\cls -> parseType cls) classes)
 parse' _ = emptyResult
 
 
--- parse java top level type
+-- | Parses a java top level type
 
 
-parseType :: TypeDecl -> Result
+parseType :: TypeDecl -> ParserResult
 parseType (ClassTypeDecl decl) = parseClass decl
 parseType (InterfaceTypeDecl decl) = parseInterface decl
 
 
--- parse java class
+-- | Parses a java class
 
 
-parseClass :: ClassDecl -> Result
+parseClass :: ClassDecl -> ParserResult
 parseClass (ClassDecl _ _ _ _ _ body) = newClass + (parseClassBody body)
 parseClass (EnumDecl _ _ _ _) = newClass
 
 
--- parse java interface
+-- | Parses a java interface
 
 
-parseInterface :: InterfaceDecl -> Result
+parseInterface :: InterfaceDecl -> ParserResult
 parseInterface (InterfaceDecl _ _ _ _ _ body) = parseInterfaceBody body
 
 
--- parse body of a java interface
+-- | Parses body of a java interface
 
 
-parseInterfaceBody :: InterfaceBody -> Result
+parseInterfaceBody :: InterfaceBody -> ParserResult
 parseInterfaceBody (InterfaceBody decls) = foldl (+) 0 (map (\decl -> parseMember decl) decls)
 
 
--- parse body of a java class constructor
+-- | Parses body of a java class constructor
 
 
-parseConstructorBody :: ConstructorBody -> Result
+parseConstructorBody :: ConstructorBody -> ParserResult
 parseConstructorBody (ConstructorBody _ block) = (foldl (+) 0 (map (\decl -> parseStatements decl) block)) + newFunction
 
 
--- parse body of a java class
+-- | Parses body of a java class
 
-parseClassBody :: ClassBody -> Result
+parseClassBody :: ClassBody -> ParserResult
 parseClassBody (ClassBody decls) = foldl (+) 0 (map (\decl -> parseDecl decl) decls)
 
 
--- parse declaration of java method, inner class or member variable
+-- | Parses declaration of java method, inner class or member variable
 
 
-parseDecl :: Decl -> Result
+parseDecl :: Decl -> ParserResult
 parseDecl (MemberDecl decl) = parseMember decl
 
 
--- parse declaration of java method, inner class or member variable #2
+-- | Parses declaration of java method, inner class or member variable #2
 
 
-parseMember :: MemberDecl -> Result
+parseMember :: MemberDecl -> ParserResult
 parseMember (FieldDecl _ _ vars) = foldl (+) 0 (map (\var -> parseVar var) vars)
-parseMember (MethodDecl _ _ _ _ params _ _ body) = (parseMethodBody body) + (Result 0 0 (length params) 1)
-parseMember (ConstructorDecl _ _ _ params _ body) = (parseConstructorBody body) + (Result 0 0 (length params) 0)
+parseMember (MethodDecl _ _ _ _ params _ _ body) = (parseMethodBody body) + (ParserResult 0 0 (length params) 1)
+parseMember (ConstructorDecl _ _ _ params _ body) = (parseConstructorBody body) + (ParserResult 0 0 (length params) 0)
 parseMember (MemberClassDecl cls) = parseClass cls
 parseMember (MemberInterfaceDecl interface) = parseInterface interface
 
 
--- parse a body of a method
+-- | Parses a body of a method
 
-parseMethodBody :: MethodBody -> Result
+parseMethodBody :: MethodBody -> ParserResult
 parseMethodBody (MethodBody Nothing) = emptyResult
 parseMethodBody (MethodBody (Just body)) = parseBlock body
 
 
--- parse a block of statements
+-- | Parses a block of statements
 
 
-parseBlock :: Block -> Result
+parseBlock :: Block -> ParserResult
 parseBlock (Block statements) = foldl (+) 0 (map (\statement -> parseStatements statement) statements)
 
 
--- parse a block of statements #2
+-- | Parses a block of statements #2
 
 
-parseStatements :: BlockStmt -> Result
+parseStatements :: BlockStmt -> ParserResult
 parseStatements (LocalClass cls) = parseClass cls
 parseStatements (BlockStmt stmt) = parseStatement stmt
 parseStatements (LocalVars _ _ vars) = foldl (+) 0 (map (\var -> parseVar var) vars)
 
 
--- parse java statement
+-- | Parses java statement
 
 
-parseStatement :: Stmt -> Result
+parseStatement :: Stmt -> ParserResult
 parseStatement (StmtBlock blck) = parseBlock blck
 parseStatement (IfThen _ stmt) = newBranch + (parseStatement stmt)
 parseStatement (IfThenElse _ stmt1 stmt2) = newBranch + (parseStatement stmt1) + (parseStatement stmt2)
@@ -135,14 +144,14 @@ parseStatement (Switch expr switch) = foldl (+) 0 (map parseSwitch switch)
 parseStatement _ = emptyResult
 
 
--- parse switch statement
+-- | Parses switch statement
 
-parseSwitch :: SwitchBlock -> Result
-parseSwitch (SwitchBlock _ block) = (Result 0 ((length block) `div` 2) 0 0) + (foldl (+) 0 (map parseStatements block))
+parseSwitch :: SwitchBlock -> ParserResult
+parseSwitch (SwitchBlock _ block) = (ParserResult 0 ((length block) `div` 2) 0 0) + (foldl (+) 0 (map parseStatements block))
 
 
--- parse variable
+-- | Parses variable
 
-parseVar :: VarDecl -> Result
+parseVar :: VarDecl -> ParserResult
 parseVar _ = newVar
 

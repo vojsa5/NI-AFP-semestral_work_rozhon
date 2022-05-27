@@ -1,4 +1,15 @@
-module Lib
+{-|
+Module      : Line counter
+Description : Counter of code, blank and comment lines of a source code.
+Copyright   : (c) Vojtech Rozhon, 2022
+License     : MIT
+Stability   : experimental
+-}
+
+
+
+
+module LineCounter
     where
 
 import Debug.Trace
@@ -12,7 +23,7 @@ import Data.Settings
 
 
 
-
+-- | Returns name of a language of a source file based on its suffix
 -- filename -> language name
 -- empty string means the language is not supported
 -- get name of the language of the code based on the suffix of the file.
@@ -34,6 +45,7 @@ getLanguageName fileName = do
                             ""
 
 
+-- | Splits source code into lines. Also split a line, if it contains a block comment symbol
 -- settings -> source code -> lines 
 -- splits source code by new line symbols and block comment symbols
 -- line where block comment starts 
@@ -46,6 +58,8 @@ createLines (Settings _ True) code = concat (map (\lst -> appendCommentSymbols "
 createLines (Settings _ False) code = splitOn "\n" code
 
 
+
+-- | Appends back comment symbol removed by the splitOn function
 -- comment symbol -> lines -> lines with comment symbol possibly appended
 -- takes result of splitOn function called on a line with delimiter as a block comment symbol.
 -- The function wants to add back the deleted delimiter to the code
@@ -80,6 +94,7 @@ appendCommentSymbols' delim (head:tail) = if delim == "*/"
         [head]
 
 
+-- | Checks whether the line contains a comment symbol
 -- settings -> line -> wheather there is a comment symbol in the line
 -- True if a line contains a comment symbol
 
@@ -90,6 +105,7 @@ isCommentLine (Settings Hash _) line = case filter (== '#') line of
 isCommentLine (Settings DoubleSlash _) line = isInfixOf "//" line
 
 
+-- | Checks wheather a line starts with a comment symbol
 -- settings -> line -> wheather the line starts with a comment symbol
 -- True if a line starts with a comment symbol
 
@@ -100,6 +116,7 @@ startsWithCommentSymbol (Settings DoubleSlash _) (head:second:tail) = head == '/
 startsWithCommentSymbol _ _ = False
 
 
+-- | Checks wheather the line is blank or a code line
 -- settings -> line -> result counted so far -> allow increasing blank lines -> type of the line appended to the result
 -- Checks whether the line is code line or a black line
 
@@ -115,6 +132,7 @@ checkIfCode settings line (LinesCnt code blank comment) allowIncreasingBlankLine
         else 
             LinesCnt (code + 1) blank comment
 
+-- | Checks wheather the line is blank, code or comment line
 -- settings -> line -> result counted so far -> type of the line appended to the result
 -- Analyzes type of the line
 
@@ -131,6 +149,7 @@ analyzeLine settings line (LinesCnt code blank comment) =
                     checkIfCode settings line (LinesCnt code blank comment) True
 
 
+-- | Gets a part o line preceeding a comment symbol
 
 getPreceedingCommentSymbol :: Settings -> String -> String
 getPreceedingCommentSymbol (Settings Hash _) line = head (splitOn "#" line)
@@ -138,6 +157,7 @@ getPreceedingCommentSymbol (Settings DoubleSlash _) line = head (splitOn "//" li
 getPreceedingCommentSymbol _ line = line
 
 
+-- | Checks wheather a line starts with a block comment
 -- isAlreadyInBlockComment -> line -> is line in block comment
 -- checks whether the line is in a block comment
 
@@ -147,6 +167,8 @@ checkBlockComment True (head:second:tail) = not (head == '*' && second == '/')
 checkBlockComment isInBlockComment _ = isInBlockComment
 
 
+
+-- | Counts code, comment and blank lines
 -- settings -> lines -> counted lines
 -- Counts code, blank and comment lines
 

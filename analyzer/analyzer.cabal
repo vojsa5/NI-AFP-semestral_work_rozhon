@@ -25,13 +25,13 @@ source-repository head
 
 library
   exposed-modules:
-      C.MyC
+      C.CParser
       Data.LinesCnt
-      Data.Result
+      Data.ParserResult
       Data.Settings
-      Java.Myjava
-      Lib
-      Python.MyPython
+      Java.JavaParser
+      LineCounter
+      Python.PythonParser
   other-modules:
       Paths_analyzer
   hs-source-dirs:

@@ -1,3 +1,14 @@
+{-|
+Module      : Lines Count
+Description : Stores number of code, blank and comment lines.
+Copyright   : (c) Vojtech Rozhon, 2022
+License     : MIT
+Stability   : experimental
+-}
+
+
+
+
 module Data.LinesCnt
     where
 
@@ -5,8 +16,11 @@ module Data.LinesCnt
 
 
 data LinesCnt = LinesCnt {
+    -- | Number of code lines
     code :: Int
+    -- | Number of blank lines
     , blank :: Int
+    -- | Number of comment lines
     , comment :: Int
 } deriving (Eq, Show, Read)
 

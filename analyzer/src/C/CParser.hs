@@ -1,23 +1,30 @@
-module C.MyC
+{-|
+Module      : C Parser
+Description : Counts classes, functions and methods, variables and branch statements in a c source code
+Copyright   : (c) Vojtech Rozhon, 2022
+License     : MIT
+Stability   : experimental
+-}
+
+
+module C.CParser
     where
 
 
 import Language.C
 import Language.C.System.GCC
 import Data.Maybe
+import Data.ParserResult
 
 
-import Data.Result
-
-
--- check the Nodeinfo to see if the node comes from the source code (libraries files are present in the translation unit)
+-- | Checks the Nodeinfo to see if the node comes from the source code file (library files are also present in the translation unit)
 
 checkSourceCode :: NodeInfo -> String -> Bool
 checkSourceCode (OnlyPos pos _) sourceFile = (posFile pos) == sourceFile
 checkSourceCode (NodeInfo pos _ _) sourceFile = (posFile pos) == sourceFile
 
 
--- run c parser
+-- | Runs the c parser
 
 run file = parseMyFile file >>= (parse file)
 
@@ -30,33 +37,34 @@ parseMyFile input_file =
 
 
 
--- parse the source code
+-- | Parses the source code
 
-parse :: String -> CTranslUnit -> IO (Result)
+parse :: String -> CTranslUnit -> IO (ParserResult)
 parse file ctu = do
     return (parseCTU ctu file)
 
 
--- parse the translation unit
+-- | Parses the translation unit
 
 
-parseCTU :: CTranslUnit -> String ->  Result
+parseCTU :: CTranslUnit -> String ->  ParserResult
 parseCTU (CTranslUnit tUnit info) sourceFile = case foldl (+) 0 (map (\unit -> parseExternalDeclaration unit sourceFile) tUnit) of
-  (Result classCnt branchesCnt varCnt fncCnt) -> Result classCnt branchesCnt (varCnt - fncCnt) fncCnt -- don't count functions as variable declarations
+  (ParserResult classCnt branchesCnt varCnt fncCnt) -> 
+    ParserResult classCnt branchesCnt (varCnt - fncCnt) fncCnt -- don't count functions as variable declarations
 
 
 
--- parse top-level declaration
+-- | Parses a top-level declaration
 
-parseExternalDeclaration :: CExternalDeclaration NodeInfo -> String -> Result
+parseExternalDeclaration :: CExternalDeclaration NodeInfo -> String -> ParserResult
 parseExternalDeclaration (CDeclExt decl) sourceFile = parseTopLevelDeclaration decl sourceFile
 parseExternalDeclaration (CFDefExt fce) sourceFile = parseTopLevelFunction fce sourceFile
 parseExternalDeclaration _ _ = emptyResult
 
 
--- parse top-level declaration #2
+-- | Parses a top-level declaration #2
 
-parseTopLevelDeclaration :: CDeclaration NodeInfo -> String -> Result
+parseTopLevelDeclaration :: CDeclaration NodeInfo -> String -> ParserResult
 parseTopLevelDeclaration (CDecl declSpec declList info) sourceFile = if checkSourceCode info sourceFile
   then 
     (foldl (+) 0 (map parseDeclarationSpecifier declSpec)) + (parseDeclaration' declList emptyResult)
@@ -69,16 +77,16 @@ parseTopLevelDeclaration (CStaticAssert expr _ info) sourceFile = if checkSource
     emptyResult
 
 
--- parse declaration
+-- | parses a declaration
 
-parseDeclaration :: CDeclaration NodeInfo -> Result
+parseDeclaration :: CDeclaration NodeInfo -> ParserResult
 parseDeclaration (CDecl declSpec declList info) = 
   (foldl (+) 0 (map parseDeclarationSpecifier declSpec)) + (parseDeclaration' declList emptyResult)
 
 parseDeclaration (CStaticAssert expr _ info) = parseExpression expr
 
 
-parseDeclaration' :: [(Maybe (CDeclarator NodeInfo), Maybe (CInitializer NodeInfo), Maybe (CExpression NodeInfo))] -> Result -> Result
+parseDeclaration' :: [(Maybe (CDeclarator NodeInfo), Maybe (CInitializer NodeInfo), Maybe (CExpression NodeInfo))] -> ParserResult -> ParserResult
 parseDeclaration' [] res = res
 parseDeclaration' ((decl, init, expr):tail) res = 
   case decl of
@@ -92,17 +100,17 @@ parseDeclaration' ((decl, init, expr):tail) res =
   parseDeclaration' tail res
 
 
--- parse specifier of a declaration
+-- | Parses a specifier of a declaration
 
-parseDeclarationSpecifier :: CDeclarationSpecifier NodeInfo -> Result
+parseDeclarationSpecifier :: CDeclarationSpecifier NodeInfo -> ParserResult
 parseDeclarationSpecifier (CStorageSpec _) = emptyResult
 parseDeclarationSpecifier (CTypeSpec spec) = parseTypeSpecification spec
 parseDeclarationSpecifier _ = emptyResult
 
 
--- parse type of a specifier
+-- | Parses type of a specifier
 
-parseTypeSpecification :: CTypeSpecifier NodeInfo -> Result
+parseTypeSpecification :: CTypeSpecifier NodeInfo -> ParserResult
 parseTypeSpecification (CSUType (CStruct _ _ decl _ _) _) = case decl of
   (Just j) -> (foldl (+) 0 (map parseDeclaration j)) + newClass
   Nothing -> newClass
@@ -113,9 +121,9 @@ parseTypeSpecification (CAtomicType decl _) = parseDeclaration decl
 parseTypeSpecification _ = emptyResult
 
 
--- parse top level function
+-- | Parses a top level function
 
-parseTopLevelFunction :: CFunctionDef NodeInfo -> String -> Result
+parseTopLevelFunction :: CFunctionDef NodeInfo -> String -> ParserResult
 parseTopLevelFunction (CFunDef _ cDecl decls statement info) sourceFile = if checkSourceCode info sourceFile
   then
     parseStatement statement + (foldl (+) 0 (map parseDeclaration decls)) + newFunction + parseCDeclarator cDecl
@@ -124,15 +132,15 @@ parseTopLevelFunction (CFunDef _ cDecl decls statement info) sourceFile = if che
     emptyResult
 
 
--- parse funciton
+-- | Parses a funciton
 
-parseFunction :: CFunctionDef NodeInfo -> Result
+parseFunction :: CFunctionDef NodeInfo -> ParserResult
 parseFunction (CFunDef _ _ decls statement info) = parseStatement statement + (foldl (+) 0 (map parseDeclaration decls))
 
 
--- parse statement
+-- | Parses a statement
 
-parseStatement :: CStatement NodeInfo -> Result
+parseStatement :: CStatement NodeInfo -> ParserResult
 parseStatement (CLabel _ statement _ _) = parseStatement statement
 parseStatement (CCase expr statement _) = (parseExpression expr) + (parseStatement statement) + newBranch
 parseStatement (CCases expr1 expr2 statement _) = (parseExpression expr1) + (parseExpression expr2) + (parseStatement statement) + newBranch
@@ -150,15 +158,15 @@ parseStatement (CReturn (Just expr) _) = parseExpression expr
 parseStatement _ = emptyResult
 
 
--- parse a list of expressions
+-- | Parses a list of expressions
 
-parseExpressions :: [CExpression NodeInfo] -> Result
+parseExpressions :: [CExpression NodeInfo] -> ParserResult
 parseExpressions exprs = foldl (+) 0 (map parseExpression exprs)
 
 
--- parse an expression
+-- | Parses an expression
 
-parseExpression :: CExpression NodeInfo -> Result
+parseExpression :: CExpression NodeInfo -> ParserResult
 parseExpression (CCond expr1 expr2 expr3 _) = case expr2 of
   (Just j) -> (parseExpression expr1) + (parseExpression expr3) + (parseExpression j)
   Nothing -> (parseExpression expr1) + (parseExpression expr3)
@@ -181,9 +189,9 @@ parseExpression (CStatExpr statement _) = parseStatement statement
 parseExpression _ = emptyResult
 
 
--- parse C11 generic selection
+-- | Parses C11 generic selection
 
-parseGenericSelection :: [(Maybe (CDeclaration NodeInfo), CExpression NodeInfo)] -> Result -> Result
+parseGenericSelection :: [(Maybe (CDeclaration NodeInfo), CExpression NodeInfo)] -> ParserResult -> ParserResult
 parseGenericSelection [] res = res
 parseGenericSelection ((decl, expr):tail) res = 
   (case decl of
@@ -192,21 +200,21 @@ parseGenericSelection ((decl, expr):tail) res =
     + parseExpression expr + parseGenericSelection tail res
 
 
--- parse declarations
+-- | Parses declarations
 
-parseCDeclarator :: CDeclarator NodeInfo -> Result
+parseCDeclarator :: CDeclarator NodeInfo -> ParserResult
 parseCDeclarator (CDeclr _ decls _ _ _) = foldl (+) 0 (map parseCDeclarator' decls)
 
 
-parseCDeclarator' :: CDerivedDeclarator NodeInfo -> Result
+parseCDeclarator' :: CDerivedDeclarator NodeInfo -> ParserResult
 parseCDeclarator' (CFunDeclr (Right declsTuple) _ _) = case declsTuple of
   (decls, _) -> foldl (+) 0 (map parseDeclaration decls) + newVar
 parseCDeclarator' _ = emptyResult
 
 
--- parse a block
+-- | Parses a block
 
-parseBlockItems :: CCompoundBlockItem NodeInfo -> Result
+parseBlockItems :: CCompoundBlockItem NodeInfo -> ParserResult
 parseBlockItems (CBlockStmt statement) = parseStatement statement
 parseBlockItems (CBlockDecl decl) = parseDeclaration decl
 parseBlockItems (CNestedFunDef fce) = parseFunction fce
