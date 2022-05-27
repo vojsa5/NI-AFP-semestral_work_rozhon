@@ -25,6 +25,6 @@ stack run "path to a source code file"
 to run the app
 
 
-## LICENSE
+## License
 
 Described in analyzer/LICENSE
