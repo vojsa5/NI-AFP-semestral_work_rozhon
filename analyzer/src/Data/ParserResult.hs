@@ -24,14 +24,10 @@ type VarDeclCnt = Int
 type FunctionCnt = Int
 
 data ParserResult = ParserResult {
-    -- | Number of found classes
-    classCnt :: ClassCnt
-    -- | Number of found branches
-    , branchesCnt :: BranchesCnt
-    -- | Number of found variables
-    , varDecls :: VarDeclCnt
-    -- | Number of found functions
-    , functionsCnt :: FunctionCnt
+    classCnt :: ClassCnt -- ^ Number of found classes
+    , branchesCnt :: BranchesCnt -- ^ Number of found branches
+    , varDecls :: VarDeclCnt -- ^ Number of found variables
+    , functionsCnt :: FunctionCnt -- ^ Number of found functions
 } deriving (Eq, Show, Read)
 
 

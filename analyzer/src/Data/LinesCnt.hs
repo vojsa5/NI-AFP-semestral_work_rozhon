@@ -16,12 +16,9 @@ module Data.LinesCnt
 
 
 data LinesCnt = LinesCnt {
-    -- | Number of code lines
-    code :: Int
-    -- | Number of blank lines
-    , blank :: Int
-    -- | Number of comment lines
-    , comment :: Int
+    code :: Int -- ^ Number of code lines
+    , blank :: Int -- ^ Number of blank lines
+    , comment :: Int  -- ^ Number of comment lines
 } deriving (Eq, Show, Read)
 
 
