@@ -1,5 +1,5 @@
 {-|
-Module      : Python Parser
+Module      : Python.PythonParser
 Description : Counts classes, functions and methods, variables and branch statements in a python source code
 Copyright   : (c) Vojtech Rozhon, 2022
 License     : MIT

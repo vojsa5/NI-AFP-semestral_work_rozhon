@@ -1,5 +1,5 @@
 {-|
-Module      : C Parser
+Module      : C.CParser
 Description : Counts classes, functions and methods, variables and branch statements in a c source code
 Copyright   : (c) Vojtech Rozhon, 2022
 License     : MIT

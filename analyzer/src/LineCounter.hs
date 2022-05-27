@@ -1,5 +1,5 @@
 {-|
-Module      : Line counter
+Module      : LineCounter
 Description : Counter of code, blank and comment lines of a source code.
 Copyright   : (c) Vojtech Rozhon, 2022
 License     : MIT

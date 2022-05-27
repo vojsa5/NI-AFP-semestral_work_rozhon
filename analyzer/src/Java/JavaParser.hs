@@ -1,5 +1,5 @@
 {-|
-Module      : Java Parser
+Module      : Java.JavaParser
 Description : Counts classes, functions and methods, variables and branch statements in a java source code
 Copyright   : (c) Vojtech Rozhon, 2022
 License     : MIT

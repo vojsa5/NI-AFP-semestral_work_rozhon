@@ -1,5 +1,5 @@
 {-|
-Module      : Parser Result
+Module      : Data.ParserResult
 Description : Stores number classes, branches, variables and functions in a source code
 Copyright   : (c) Vojtech Rozhon, 2022
 License     : MIT

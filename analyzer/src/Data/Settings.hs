@@ -1,6 +1,6 @@
 {-|
-Module      : Settings
-Description : Settings of a language for the lines counter
+Module      : Data.Settings
+Description : Settings of a language used in the lines counter
 Copyright   : (c) Vojtech Rozhon, 2022
 License     : MIT
 Stability   : experimental

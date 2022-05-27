@@ -1,5 +1,5 @@
 {-|
-Module      : Lines Count
+Module      : Data.LinesCnt
 Description : Stores number of code, blank and comment lines.
 Copyright   : (c) Vojtech Rozhon, 2022
 License     : MIT
