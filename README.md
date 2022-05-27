@@ -1,6 +1,6 @@
 # NI-AFP-semestral_work_rozhon
 
-
+## Požadavky na aplikaci
 
 Aplikace je inspirována programem cloc (http://cloc.sourceforge.net/) a bude analyzovat zdrojové kódy.
 Podporovat bude sečtení počtu řádků kódu, počet komentářových řádků.
@@ -16,6 +16,7 @@ Budou podporovány alespoň 3 jazyky.
 
 Důraz by měl být kladen na jednoduché přidání podpory pro nový jazyk.
 
+## Run the App
 
 Run
 ```
