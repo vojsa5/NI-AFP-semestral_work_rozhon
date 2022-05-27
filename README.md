@@ -23,3 +23,8 @@ Run
 stack run "path to a source code file"
 ```
 to run the app
+
+
+## LICENSE
+
+Described in analyzer/LICENSE
