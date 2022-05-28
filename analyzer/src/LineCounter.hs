@@ -154,7 +154,6 @@ analyzeLine settings line (LinesCnt code blank comment) =
 getPreceedingCommentSymbol :: Settings -> String -> String
 getPreceedingCommentSymbol (Settings Hash _) line = head (splitOn "#" line)
 getPreceedingCommentSymbol (Settings DoubleSlash _) line = head (splitOn "//" line)
-getPreceedingCommentSymbol _ line = line
 
 
 -- | Checks wheather a line starts with a block comment

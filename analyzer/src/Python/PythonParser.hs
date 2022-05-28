@@ -152,4 +152,3 @@ parseExpr _ = emptyPythonResult
 
 parseIden :: Ident Language.Python.Common.SrcLocation.SrcSpan -> PythonResult
 parseIden (Ident iden _) = PythonResult emptyResult (Data.Set.fromList [iden])
-parseIden _ = emptyPythonResult
