@@ -16,7 +16,7 @@ Budou podporovány alespoň 3 jazyky.
 
 Důraz by měl být kladen na jednoduché přidání podpory pro nový jazyk.
 
-## 
+## Use
 
 The app takes a source code as an argument and performs an analysis of it. It counts code/blank/comment lines in the code. It also counts classes, functions/methods, places where flow of the program can choose between multiple flows (These places are called branches in the app) and number of variables declared in the source code.
 
