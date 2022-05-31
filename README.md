@@ -24,7 +24,7 @@ Currently java source code files with suffix .java, python source code files wit
 
 ## Run the App
 
-Run
+In the folder analyzer, run
 ```
 stack run "path to a source code file"
 ```
