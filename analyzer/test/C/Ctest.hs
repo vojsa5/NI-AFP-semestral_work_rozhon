@@ -40,4 +40,4 @@ spec = do
           res4 `shouldBe` (ParserResult 1 0 4 1)
           ctu5 <- C.CParser.parseMyFile (currDir ++ "/test/C/switch.c")
           res5 <- C.CParser.parse (currDir ++ "/test/C/switch.c") ctu5
-          res5 `shouldBe` (ParserResult 0 5 3 1)
+          res5 `shouldBe` (ParserResult 0 4 3 1)

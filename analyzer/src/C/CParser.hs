@@ -144,7 +144,7 @@ parseStatement :: CStatement NodeInfo -> ParserResult
 parseStatement (CLabel _ statement _ _) = parseStatement statement
 parseStatement (CCase expr statement _) = (parseExpression expr) + (parseStatement statement) + newBranch
 parseStatement (CCases expr1 expr2 statement _) = (parseExpression expr1) + (parseExpression expr2) + (parseStatement statement) + newBranch
-parseStatement (CDefault statement _) = parseStatement statement + newBranch
+parseStatement (CDefault statement _) = parseStatement statement
 parseStatement (CExpr (Just expr) _) = parseExpression expr
 parseStatement (CCompound _ blockItems _ ) = foldl (+) 0 (map parseBlockItems blockItems)
 parseStatement (CIf expr statement maybeStatement _) = case maybeStatement of
