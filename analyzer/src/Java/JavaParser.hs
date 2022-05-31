@@ -132,8 +132,9 @@ parseStatement :: Stmt -> ParserResult
 parseStatement (StmtBlock blck) = parseBlock blck
 parseStatement (IfThen _ stmt) = newBranch + (parseStatement stmt)
 parseStatement (IfThenElse _ stmt1 stmt2) = newBranch + (parseStatement stmt1) + (parseStatement stmt2)
-parseStatement (While _ stmt) = parseStatement stmt
-parseStatement (BasicFor _ _ _ stmt) = parseStatement stmt
+parseStatement (While _ stmt) = parseStatement stmt + newBranch
+parseStatement (BasicFor (Just (ForLocalVars _ _ decls)) _ _ stmt) = (foldl (+) 0 (map parseVar decls)) + parseStatement stmt + newBranch 
+parseStatement (BasicFor _ _ _ stmt) = parseStatement stmt + newBranch 
 parseStatement (EnhancedFor _ _ _ _ stmt) = parseStatement stmt
 parseStatement (Do stmt _) = newBranch + (parseStatement stmt)
 parseStatement (Try blck _ Nothing) = parseBlock blck
@@ -149,7 +150,6 @@ parseStatement _ = emptyResult
 parseSwitch :: SwitchBlock -> ParserResult
 parseSwitch (SwitchBlock (SwitchCase _) block) = newBranch + (foldl (+) 0 (map parseStatements block))
 parseSwitch _ = emptyResult
-
 
 -- | Parses variable
 
