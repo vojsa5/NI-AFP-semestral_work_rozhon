@@ -67,7 +67,29 @@ If a line contains code and, after it, it contains a symbol for beginning of blo
 
 ### Analysis of statements used in the source code
 
-The fourth line shows a sum of all classes in the source code. Enums, interfaces of structs are also counted and considered to be classes ofr simplicity.
+#### Sum of classes
+
+The fourth line shows a sum of all classes in the source code. Enums, interfaces of structs are also counted and considered to be classes for simplicity.
+
+This java code 
+```
+public class test3 {  
+    //Represents the node of list.  
+    public class Node{  
+        int data;  
+        Node next;  
+        public Node(int data) {  
+            this.data = data;  
+        }  
+    }  
+  
+    //Declaring head and tail pointer as null.  
+    public Node head = null;  
+    public Node tail = null; 
+    }
+}                                       ->                    2 classes
+```
+contains 2 classes.
 
 #### Sum of branches
 
@@ -124,7 +146,7 @@ also counts as one branch since program either executes the branch 0 or the defa
 
 While statements and for statements also add a branch to the sum if they contain a condition.
 
-### Sum of variables
+#### Sum of variables
 
 The sixth line of the output shows a number of variables declared in the code. It includes local varaibles, global variable, attributes of classes or aguments of functions/methods.
 
@@ -138,11 +160,11 @@ int main(int argc) {
     for (int k = 0; k < 10; k ++){
         continue;
     }
-    return 0;
+    return 0;                           ->                     (g, argc, f, k)
 }
 ```
 declares 4 variables (g, argc, f, k).
 
-### Sum of methods/functions
+#### Sum of methods/functions
 
 Global functions and methods are counted. That means that lambda functions are not.
