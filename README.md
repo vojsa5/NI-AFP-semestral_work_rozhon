@@ -170,3 +170,30 @@ declares 4 variables (g, argc, f, k).
 #### Sum of methods/functions
 
 Global functions and methods are counted. That means that lambda functions are not.
+
+Python source code
+```
+class ComplexNumber:
+    def __init__(self, r=0, i=0):
+        self.real = r
+        self.imag = i
+
+    def get_data(self):
+        print(f'{self.real}+{self.imag}j')
+def compute_lcm(x, y):
+
+   # choose the greater number
+   if x > y:
+       greater = x
+   else:
+       greater = y
+
+   while(True):
+       if((greater % x == 0) and (greater % y == 0)):
+           lcm = greater
+           break
+       greater += 1
+
+   return lcm                                          ->                       3 functions
+```
+have 3 functions.
