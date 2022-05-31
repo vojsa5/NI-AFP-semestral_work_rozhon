@@ -147,7 +147,8 @@ parseStatement _ = emptyResult
 -- | Parses switch statement
 
 parseSwitch :: SwitchBlock -> ParserResult
-parseSwitch (SwitchBlock _ block) = (ParserResult 0 ((length block) `div` 2) 0 0) + (foldl (+) 0 (map parseStatements block))
+parseSwitch (SwitchBlock (SwitchCase _) block) = newBranch + (foldl (+) 0 (map parseStatements block))
+parseSwitch _ = emptyResult
 
 
 -- | Parses variable
