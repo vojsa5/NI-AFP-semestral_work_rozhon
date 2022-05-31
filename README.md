@@ -20,6 +20,8 @@ Důraz by měl být kladen na jednoduché přidání podpory pro nový jazyk.
 
 The app takes a source code as an argument and performs an analysis of it. It counts code/blank/comment lines in the code. It also counts classes, functions/methods, places where flow of the program can choose between multiple flows (These places are called branches in the app) and number of variables declared in the source code.
 
+Currently java source code files with suffix .java, python source code files with suffix .py and C source code files with suffix .c are supported.
+
 ## Run the App
 
 Run
@@ -27,7 +29,7 @@ Run
 stack run "path to a source code file"
 ```
 
-## Output of example program
+## Output of an example program
 
 to run the app
 
