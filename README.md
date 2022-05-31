@@ -26,6 +26,9 @@ Run
 ```
 stack run "path to a source code file"
 ```
+
+## Output of example program
+
 to run the app
 
 You may try the app on example povided in the test folder.
@@ -51,6 +54,9 @@ Number of variables: 9
 Number of functions/methods: 2
 
 ```
+
+### Code/Blank/Comment lines
+
 The first line shows a number of counted lines containing code.
 
 The second line shows a number of blank lines containing just whitespace.
@@ -59,7 +65,11 @@ The third line shows a number of lines inside of a block comment or containing t
 
 If a line contains code and, after it, it contains a symbol for beginning of block or line comment, it is considered as both comment line and code line.
 
+### Analysis of statements used in the source code
+
 The fourth line shows a sum of all classes in the source code. Enums, interfaces of structs are also counted and considered to be classes ofr simplicity.
+
+#### Sum of branches
 
 The fifth line shows a number of places, where based on a condition, two different branches of code can be executed. For example python code 
 
@@ -111,3 +121,6 @@ switch(x){
 }
 ```
 also counts as one branch since program either executes the branch 0 or the default case.
+
+While statements and for statements also add a branch to the sum if they contain a condition.
+
