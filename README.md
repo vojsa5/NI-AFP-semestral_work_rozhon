@@ -197,3 +197,9 @@ def compute_lcm(x, y):
    return lcm                                          ->                       3 functions
 ```
 have 3 functions.
+
+
+
+## Support of additional languages
+
+Support for counting of code/blank/comment lines can be added easily by creating an instance of Settings and specifiing comment symbols that the languages uses. However if the language uses a comment symbol that is not supported yet by the app, it needs to be implemented. Luckily, it should not be hard. To implement counting of branches, classes, functions and variables, new parser that does the counting have to be implemented.
