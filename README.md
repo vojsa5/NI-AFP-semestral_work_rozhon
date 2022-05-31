@@ -29,8 +29,11 @@ In the folder analyzer, run
 stack run "path to a source code file"
 ```
 The source code file provided as an argument should be on of following:
+    
     1) a valid python source code and end with suffix .py
+    
     2) a valid java source code and end with suffix .java
+    
     3) a valid C source code and end with suffix .c
 
 The app expects just one file as an argument.
