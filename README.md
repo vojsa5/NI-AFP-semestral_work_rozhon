@@ -71,7 +71,7 @@ The second line shows a number of blank lines containing just whitespace.
 
 The third line shows a number of lines inside of a block comment or containing the symbol of beginnning of a block comment or a single line comment.
 
-If a line contains code and, after it, it contains a symbol for beginning of block or line comment, it is considered as both comment line and code line.
+If a line contains code, and after it, it contains a symbol that signal beginnning of a comment, it is considered as both comment line and code line.
 
 ### Analysis of statements used in the source code
 
