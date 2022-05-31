@@ -61,7 +61,7 @@ If a line contains code and, after it, it contains a symbol for beginning of blo
 
 The fourth line shows a sum of all classes in the source code. Enums, interfaces of structs are also counted and considered to be classes ofr simplicity.
 
-The fifth line shows a number of places, where based on a condition, two different branches of code can be executed. For example code 
+The fifth line shows a number of places, where based on a condition, two different branches of code can be executed. For example python code 
 
 ```
 if x:
@@ -70,7 +70,7 @@ if x:
 ```
 counts as one branch since program can either execute the foo or not based on a condition.
 
-Code 
+Following code in python
 ```
 if x:
   foo()
@@ -81,7 +81,7 @@ else:
 also counts as one branch since the program either executes foo or bar but must execute one of them.
 
 
-Finally code 
+Finally python code 
 ```
 if x:
   foo()
@@ -90,3 +90,24 @@ elif:
 #do something
 ```
 counts as two branch since foo may be executed or bar can be executed or none of them.
+
+Similarly if the language supports switch statements, they also counts as branches.
+
+This java example 
+```
+switch(x){
+  case 0:
+    break;
+}
+```
+counts as one branch, since the program either executes the case 0 or does nothing in switch.
+The java code 
+```
+switch(x){
+  case 0:
+    break;
+  default:
+    break;
+}
+```
+also counts as one branch since program either executes the branch 0 or the default case.
