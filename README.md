@@ -28,6 +28,7 @@ In the folder analyzer, run
 ```
 stack run "path to a source code file"
 ```
+The source code has to be a valid python source code with suffix .py, a valid java source code with suffix .java or a valid C source code with suffix .c
 
 ## Run tests
 Run
