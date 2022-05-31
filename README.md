@@ -29,6 +29,12 @@ Run
 stack run "path to a source code file"
 ```
 
+## Run tests
+Run
+```
+stack test
+```
+
 ## Output of an example program
 
 to run the app
