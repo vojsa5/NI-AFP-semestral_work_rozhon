@@ -41,3 +41,6 @@ spec = do
           ctu5 <- C.CParser.parseMyFile (currDir ++ "/test/C/switch.c")
           res5 <- C.CParser.parse (currDir ++ "/test/C/switch.c") ctu5
           res5 `shouldBe` (ParserResult 0 4 3 1)
+          ctu6 <- C.CParser.parseMyFile (currDir ++ "/test/C/Vars.c")
+          res6 <- C.CParser.parse (currDir ++ "/test/C/Vars.c") ctu6
+          res6 `shouldBe` (ParserResult 0 2 4 1)

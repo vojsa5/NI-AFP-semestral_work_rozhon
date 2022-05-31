@@ -151,8 +151,24 @@ parseStatement (CIf expr statement maybeStatement _) = case maybeStatement of
   (Just statement2) -> (parseExpression expr) + (parseStatement statement) + (parseStatement statement2) + newBranch
   Nothing -> (parseExpression expr) + (parseStatement statement) + newBranch
 parseStatement (CSwitch expr statement _) = parseExpression expr + parseStatement statement
-parseStatement (CWhile expr statement _ _) = (parseExpression expr) + (parseStatement statement)
-parseStatement (CFor _ _ _ _ _) = undefined
+parseStatement (CWhile expr statement _ _) = (parseExpression expr) + (parseStatement statement) + newBranch
+parseStatement (CFor (Left expr1) expr2 expr3 stmt _) = 
+  (case expr1 of
+    (Just j1) -> parseExpression j1
+    Nothing -> emptyResult) + 
+  (case expr2 of
+    (Just j2) -> parseExpression j2
+    Nothing -> emptyResult) +
+  (case expr3 of
+    (Just j3) -> parseExpression j3
+    Nothing -> emptyResult) + parseStatement stmt + newBranch
+parseStatement (CFor (Right decl) expr1 expr2 stmt _) = parseDeclaration decl + 
+  (case expr1 of
+    (Just j1) -> parseExpression j1
+    Nothing -> emptyResult) + 
+  (case expr2 of
+    (Just j2) -> parseExpression j2
+    Nothing -> emptyResult) + parseStatement stmt + newBranch
 parseStatement (CGotoPtr expr _) = parseExpression expr
 parseStatement (CReturn (Just expr) _) = parseExpression expr
 parseStatement _ = emptyResult
