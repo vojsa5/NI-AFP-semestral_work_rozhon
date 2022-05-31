@@ -76,7 +76,7 @@ The fifth line shows a number of places, where based on a condition, two differe
 ```
 if x:
   foo()
-#do something
+#do something                           ->                    1 branch
 ```
 counts as one branch since program can either execute the foo or not based on a condition.
 
@@ -86,7 +86,7 @@ if x:
   foo()
 else:
   bar()
-#do something
+#do something                           ->                    1 branch
 ```
 also counts as one branch since the program either executes foo or bar but must execute one of them.
 
@@ -97,7 +97,7 @@ if x:
   foo()
 elif:
   bar()
-#do something
+#do something                           ->                    2 branches
 ```
 counts as two branch since foo may be executed or bar can be executed or none of them.
 
@@ -107,7 +107,7 @@ This java example
 ```
 switch(x){
   case 0:
-    break;
+    break;                              ->                    1 branch
 }
 ```
 counts as one branch, since the program either executes the case 0 or does nothing in switch.
@@ -118,9 +118,31 @@ switch(x){
     break;
   default:
     break;
-}
+}                                       ->                    1 branch
 ```
 also counts as one branch since program either executes the branch 0 or the default case.
 
 While statements and for statements also add a branch to the sum if they contain a condition.
 
+### Sum of variables
+
+The sixth line of the output shows a number of variables declared in the code. It includes local varaibles, global variable, attributes of classes or aguments of functions/methods.
+
+
+This c code
+```
+int g = 4;
+
+int main(int argc) {
+    int f = 2;
+    for (int k = 0; k < 10; k ++){
+        continue;
+    }
+    return 0;
+}
+```
+declares 4 variables (g, argc, f, k).
+
+### Sum of methods/functions
+
+Global functions and methods are counted. That means that lambda functions are not.
