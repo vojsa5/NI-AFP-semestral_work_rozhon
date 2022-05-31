@@ -37,9 +37,7 @@ stack test
 
 ## Output of an example program
 
-to run the app
-
-You may try the app on example povided in the test folder.
+You may try the app with an example source code povided in the test folder.
 
 Running 
 ```
