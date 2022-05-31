@@ -28,4 +28,65 @@ stack run "path to a source code file"
 ```
 to run the app
 
+You may try the app on example povided in the test folder.
 
+Running 
+```
+stack run test/C/test.c
+```
+gives 
+```
+Code lines: 22
+
+Blank lines: 9
+
+Comment lines: 1
+
+Number of classes: 1
+
+Number of branches: 0
+
+Number of variables: 9
+
+Number of functions/methods: 2
+
+```
+The first line shows a number of counted lines containing code.
+
+The second line shows a number of blank lines containing just whitespace.
+
+The third line shows a number of lines inside of a block comment or containing the symbol of beginnning of a block comment or a single line comment.
+
+If a line contains code and, after it, it contains a symbol for beginning of block or line comment, it is considered as both comment line and code line.
+
+The fourth line shows a sum of all classes in the source code. Enums, interfaces of structs are also counted and considered to be classes ofr simplicity.
+
+The fifth line shows a number of places, where based on a condition, two different branches of code can be executed. For example code 
+
+```
+if x:
+  foo()
+#do something
+```
+counts as one branch since program can either execute the foo or not based on a condition.
+
+Code 
+```
+if x:
+  foo()
+else:
+  bar()
+#do something
+```
+also counts as one branch since the program either executes foo or bar but must execute one of them.
+
+
+Finally code 
+```
+if x:
+  foo()
+elif:
+  bar()
+#do something
+```
+counts as two branch since foo may be executed or bar can be executed or none of them.
